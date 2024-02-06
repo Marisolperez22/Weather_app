@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '📍 ${state.weather.areaName}',
+                                '📍 ${state.weather.areaName} - ${state.weather.country} ',
                                 style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 25,
