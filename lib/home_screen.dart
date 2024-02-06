@@ -300,6 +300,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     );
+                  } else if (state is WeatherBlocFailure) {
+                    return const Center(
+                      child: Text(
+                        'Ciudad no encontrada',
+                        style: TextStyle(color: Colors.white, fontSize: 30),
+                      ),
+                    );
                   } else {
                     return Container();
                   }

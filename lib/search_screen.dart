@@ -28,7 +28,10 @@ class _SearchScreenState extends State<SearchScreen> {
           IconButton(
             onPressed: () async {
               String? cityName = cityController.text.trim();
-              Navigator.pop(context, cityName);
+              if (cityName != '') {
+                Navigator.pop(context, cityName);
+              }
+              return;
             },
             icon: const Icon(
               Icons.search,

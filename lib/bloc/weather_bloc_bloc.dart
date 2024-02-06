@@ -22,13 +22,18 @@ class WeatherBlocBloc extends Bloc<WeatherBlocEvent, WeatherBlocState> {
     });
     on<FetchWeatherByCity>(
       (event, emit) async {
-        emit(WeatherBlocLoading());
-
-        Weather weather = await wf.currentWeatherByCityName(
-          event.cityName,
-        );
-
-        emit(WeatherBlocSuccess(weather));
+        try {
+          Weather weather = await wf.currentWeatherByCityName(
+            event.cityName,
+          );
+          emit(WeatherBlocSuccess(weather));
+        } on OpenWeatherAPIException {
+          emit(WeatherBlocFailure(
+              "City not found")); // Emitir el estado de error con un mensaje adecuado
+        } catch (e) {
+          emit(WeatherBlocFailure(
+              "An error occurred")); // Manejar otros errores inesperados
+        }
       },
     );
   }
