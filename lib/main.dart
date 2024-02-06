@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:weather_app_flutter/bloc/weather_bloc_bloc.dart';
 import 'package:weather_app_flutter/home_screen.dart';
 
+import 'routes/app_routes.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -13,24 +15,34 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: FutureBuilder(
-          future: _determinePosition(),
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.done) {
-              if (snap.hasData) {
-                return BlocProvider<WeatherBlocBloc>(
-                  create: (context) => WeatherBlocBloc()
-                    ..add(FetchWeather(snap.data as Position)),
-                  child: const HomeScreen(),
-                );
-              } else if (snap.hasError) {
-                return Scaffold(
-                  body: Center(
-                    child: Text('Error: ${snap.error}'),
-                  ),
-                );
+    return BlocProvider(
+      create: (context) => WeatherBlocBloc(),
+      child: MaterialApp(
+          routes: Routes.getAppRoutes(),
+          debugShowCheckedModeBanner: false,
+          home: FutureBuilder(
+            future: _determinePosition(),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.done) {
+                if (snap.hasData) {
+                  return BlocProvider<WeatherBlocBloc>(
+                    create: (context) => WeatherBlocBloc()
+                      ..add(FetchWeather(snap.data as Position)),
+                    child: const HomeScreen(),
+                  );
+                } else if (snap.hasError) {
+                  return Scaffold(
+                    body: Center(
+                      child: Text('Error: ${snap.error}'),
+                    ),
+                  );
+                } else {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
               } else {
                 return const Scaffold(
                   body: Center(
@@ -38,15 +50,9 @@ class MainApp extends StatelessWidget {
                   ),
                 );
               }
-            } else {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-          },
-        ));
+            },
+          )),
+    );
   }
 }
 

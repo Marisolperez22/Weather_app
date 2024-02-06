@@ -3,8 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app_flutter/bloc/weather_bloc_bloc.dart';
+import 'package:weather_app_flutter/search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,11 +38,43 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _getLocationAndWeather();
+  }
+
+  void _getLocationAndWeather() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    BlocProvider.of<WeatherBlocBloc>(context).add(FetchWeather(position));
+  }
+
+  @override
+  Widget build(context) {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+                padding: const EdgeInsets.only(top: 20),
+                icon: const Icon(Icons.search),
+                color: Colors.white,
+                onPressed: () async {
+                  String? cityName = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SearchScreen()));
+                  if (cityName != null) {
+                    BlocProvider.of<WeatherBlocBloc>(context)
+                        .add(FetchWeatherByCity(cityName));
+                  }
+                }),
+          ],
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         systemOverlayStyle:
@@ -93,12 +127,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '📍 ${state.weather.areaName}',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '📍 ${state.weather.areaName}',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                           getWeatherIcon(state.weather.weatherConditionCode!),
                           Center(
